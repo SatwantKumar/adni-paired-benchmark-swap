@@ -1,6 +1,6 @@
-# Paper A — Analysis conventions v1.0
+# Paper — Analysis conventions v1.0
 
-This document is intended to be “pre-registered style”: it locks primary cohort construction, benchmark definitions, and statistical reporting for Paper A (paired benchmark dependence + gray-zone workflow) using the frozen ADNI evidence core.
+This document is intended to be “pre-registered style”: it locks primary cohort construction, benchmark definitions, and statistical reporting for Paper (paired benchmark dependence + gray-zone workflow) using the frozen ADNI evidence core.
 
 ## Neurology manuscript locks (packaging only)
 
@@ -76,9 +76,9 @@ PET positivity uses UCB’s binary field `AMYLOID_STATUS` from `core/canonical/p
 
 Continuous PET measures (e.g., `CENTILOIDS`, `SUMMARY_SUVR`) are retained for descriptive and sensitivity analyses but are not thresholded in the evidence core.
 
-## CSF benchmark definitions (Paper A)
+## CSF benchmark definitions (Paper)
 
-No CSF positivity cutpoint is applied in the evidence core. CSF positivity is defined in the Paper A pack (and recorded in `outputs/paperA/definitions.yaml`) using Elecsys continuous values (e.g., `abeta42_40_ratio` or `ABETA42`).
+No CSF positivity cutpoint is applied in the evidence core. CSF positivity is defined in the Paper pack (and recorded in `outputs/paperA/definitions.yaml`) using Elecsys continuous values (e.g., `abeta42_40_ratio` or `ABETA42`).
 
 ### Primary CSF comparator: CSF-A (amyloid-only)
 
@@ -114,7 +114,7 @@ Cutpoint strategy (prespecified):
 - Legacy comparator: `ABETA42 < c` (reported as sensitivity only).
 - Optional signature ratio sensitivity: `ptau_abeta42_ratio = PTAU / ABETA42` (direction and cutpoint recorded in `outputs/paperA/definitions.yaml` if used).
 
-## Plasma index test definition (Paper A)
+## Plasma index test definition (Paper)
 
 The paired triad build uses the FNIH BC plasma table (multi-platform components) filtered to `ASSAYVERSION=PrecivityAD2`.
 
@@ -125,13 +125,13 @@ Primary plasma endpoints are direct component assay outputs (no manufacturer com
 
 Supportive (not headline): `c2n_plasma_ptau217_ptau217` and `c2n_plasma_nptau217_nptau217`.
 
-Plasma “positivity” (and any indeterminate/gray-zone definition) is not applied in the evidence core and must be defined and locked in `outputs/paperA/definitions.yaml` prior to generating Paper A results.
+Plasma “positivity” (and any indeterminate/gray-zone definition) is not applied in the evidence core and must be defined and locked in `outputs/paperA/definitions.yaml` prior to generating Paper results.
 
-Practical note (data coverage): in the current raw drop, the C2N APS2 table is ADNI4-era (2023–) while the Elecsys CSF table in this evidence core is ADNI1–3-era (≤2022). Under the prespecified windows, APS2 cannot be evaluated against CSF in paired triads. Paper A therefore treats APS2 as a PET-only appendix analysis unless an ADNI4 CSF results table is added (or explicitly lagged/window-widened analyses are run and labeled as such).
+Practical note (data coverage): in the current raw drop, the C2N APS2 table is ADNI4-era (2023–) while the Elecsys CSF table in this evidence core is ADNI1–3-era (≤2022). Under the prespecified windows, APS2 cannot be evaluated against CSF in paired triads. Paper therefore treats APS2 as a PET-only appendix analysis unless an ADNI4 CSF results table is added (or explicitly lagged/window-widened analyses are run and labeled as such).
 
-### Plasma tri-category (gray-zone) operationalization (Paper A)
+### Plasma tri-category (gray-zone) operationalization (Paper)
 
-Paper A reports two complementary plasma views:
+Paper reports two complementary plasma views:
 
 - Primary (triad cohort): operational tri-category workflow on the co-primary component endpoints, using a two-threshold Negative/Indeterminate/Positive definition derived once (primary: against PET) and then applied unchanged when evaluating against PET vs CSF benchmarks.
 - Appendix (APS2 vs PET only): locked manufacturer dichotomy `APS2_C2N >= 48` (0–47 negative; 48–100 positive; see `outputs/paperA/definitions.yaml` for provenance), plus the same operational tri-category construction for workflow curves.
@@ -145,7 +145,7 @@ Thresholds are derived using prespecified tail targets recorded in `outputs/pape
 - Rule-out targets PPA (sensitivity) for “not Negative”
 - Rule-in targets NPA (specificity) for “not Positive”
 
-To avoid optimistic bias from threshold selection on the evaluation cohort, plasma thresholds are derived on a RID-level derivation split and all primary Paper A performance and benchmark-swap results are evaluated on the held-out split (split parameters recorded in `outputs/paperA/definitions.yaml` and the generated Paper A audit outputs).
+To avoid optimistic bias from threshold selection on the evaluation cohort, plasma thresholds are derived on a RID-level derivation split and all primary Paper performance and benchmark-swap results are evaluated on the held-out split (split parameters recorded in `outputs/paperA/definitions.yaml` and the generated Paper audit outputs).
 
 ## Metrics
 
@@ -179,7 +179,7 @@ If the plasma definition yields an indeterminate/gray-zone category:
 
 Confirmatory-testing burden is summarized under a reflex strategy (e.g., “confirm PET/LP if plasma is Positive or Indeterminate”), with the policy choices recorded in `outputs/paperA/definitions.yaml`.
 
-## Inclusion/exclusion (Paper A)
+## Inclusion/exclusion (Paper)
 
 - Include PET-anchored triads with non-missing PET benchmark and plasma fields required for the chosen plasma definition.
 - For CSF-based analyses, include only triads with the CSF fields required for the chosen CSF definition.
