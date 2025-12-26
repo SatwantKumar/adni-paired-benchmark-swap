@@ -28,7 +28,7 @@ Edit `config/pipeline.yaml` if your raw ADNI filenames/paths differ, then place 
 python scripts/build_all.py --config config/pipeline.yaml
 ```
 
-### 4) Run Paper A pack
+### 4) Run analysis pack
 
 ```bash
 python scripts/08_build_paperA_pack.py \
@@ -43,9 +43,5 @@ Running the pipeline will generate local, reproducible artifacts under:
 - `audit/` and `manifests/` (QC, join reports, inventories, release stamps)
 - `outputs/paperA/` (Paper A analysis pack: figures + auditable 2×2 tables + swap estimates)
 
-None of these are committed to git.
 
-## Contact
-
-Satwant Kumar — Satwant.Dagar@gmail.com
 
