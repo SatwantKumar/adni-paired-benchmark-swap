@@ -1,0 +1,196 @@
+analysis_conventions_version: "1.0"
+paper: "A"
+
+evidence_core:
+  release_id: "adni_core_2025-12-23_precivityAD2_fnibc_triads_plus_aps2_v1"
+  release_stamp: "manifests/evidence_core_release.json"
+  join_rules: "audit/join_reports/join_rules.md"
+  tables:
+    clinical: "core/canonical/clinical_adnimerge.csv"
+    pet: "core/canonical/pet_amyloid_ucb_6mm.csv"
+    csf: "core/canonical/csf_elecsys_upenn.csv"
+    plasma_wide: "core/canonical/plasma_fnibc_wide.csv"
+    triads: "core/paired/triad_pet_anchored.csv"
+  pairing:
+    windows_days:
+      pet_plasma: 90
+      pet_csf: 180
+      plasma_csf: 180
+    sensitivity_windows_days:
+      tight:
+        pet_plasma: 60
+        pet_csf: 120
+        plasma_csf: 120
+      wide:
+        pet_plasma: 120
+        pet_csf: 240
+        plasma_csf: 240
+    plasma_filter:
+      ASSAYVERSION: "PrecivityAD2"
+
+benchmarks:
+  pet:
+    field: "AMYLOID_STATUS"
+    pet_pos_if: "AMYLOID_STATUS == 1"
+    pet_neg_if: "AMYLOID_STATUS == 0"
+    continuous_fields:
+      - "CENTILOIDS"
+      - "SUMMARY_SUVR"
+  csf:
+    # No CSF positivity is applied in the evidence core. Define here for Paper A.
+    available_fields:
+      - "ABETA42"
+      - "ABETA40"
+      - "abeta42_40_ratio"
+      - "PTAU"
+      - "ptau_abeta42_ratio"
+
+    primary_csf_a:
+      name: "CSF-A (amyloid-only)"
+      metric: "abeta42_40_ratio"
+      csf_a_pos_if: "abeta42_40_ratio < CUTPOINT"
+      cutpoint: 0.0525
+      cutpoint_source: "Dumurgier et al., Neurology (2022): ADNI Elecsys CSF-only ('algorithm') cutpoint for Aβ42/40"
+      notes:
+        - "Primary uses the CSF-only ('algorithm') cutpoint to reduce circularity; PET-anchored cutpoints are sensitivity only."
+        - "Multiplicative sensitivity band is interpreted as transportability stress-testing (pre-analytic/site/platform variation), not post-hoc tuning."
+      sensitivity_band:
+        type: "multiplicative"
+        factors: [0.90, 0.95, 1.00, 1.05, 1.10]
+      sensitivity_named_cutpoints:
+        - name: "pet_based_secondary"
+          cutpoint: 0.0528
+          source: "Dumurgier et al., Neurology (2022): PET-based Elecsys Aβ42/40 cutpoint (sensitivity only)"
+
+    secondary_csf_at:
+      name: "CSF A+T (composite)"
+      csf_a_component:
+        uses: "primary_csf_a"
+      csf_t_component:
+        metric: "PTAU"
+        csf_t_pos_if: "PTAU > CUTPOINT"
+        cutpoint: 22.0
+        cutpoint_source: "Dumurgier et al., Neurology (2022): ADNI Elecsys CSF-only ('algorithm') cutpoint for p-tau181 (PTAU)"
+        sensitivity_band:
+          type: "multiplicative"
+          factors: [0.90, 0.95, 1.00, 1.05, 1.10]
+        sensitivity_named_cutpoints:
+          - name: "pet_based_secondary"
+            cutpoint: 24.3
+            source: "Dumurgier et al., Neurology (2022): PET-based Elecsys p-tau181 cutpoint (sensitivity only)"
+      csf_at_pos_if: "(csf_a_pos == 1) AND (csf_t_pos == 1)"
+      sensitivity_strategy: "Vary one cutpoint at a time (A band with T fixed; then T band with A fixed)."
+
+    additional_sensitivity:
+      legacy_abeta42:
+        metric: "ABETA42"
+        csf_pos_if: "ABETA42 < CUTPOINT"
+        cutpoint: null
+        cutpoint_source: null
+      ptau_abeta42_ratio:
+        metric: "ptau_abeta42_ratio"
+        csf_pos_if: "ptau_abeta42_ratio > CUTPOINT"
+        cutpoint: null
+        cutpoint_source: null
+
+index_test:
+  plasma:
+    source: "core/canonical/plasma_fnibc_wide.csv"
+    assay_filter:
+      ASSAYVERSION: "PrecivityAD2"
+    co_primary_endpoints:
+      - name: "c2n_plasma_abeta42_abeta40_abeta_ratio"
+        axis: "amyloid"
+      - name: "c2n_plasma_ptau217_ratio_ptau217_ratio"
+        axis: "tau"
+    secondary_endpoints:
+      - "c2n_plasma_ptau217_ptau217"
+      - "c2n_plasma_nptau217_nptau217"
+      - "c2n_plasma_abeta42_abeta42"
+      - "c2n_plasma_abeta40_abeta40"
+    classification:
+      type: "tri_category"
+      method: "tail_targets"
+      # Thresholds are derived once using a single benchmark (primary: PET), then applied unchanged
+      # when evaluating against PET vs CSF benchmarks (to isolate comparator dependence).
+      benchmark_for_thresholds: "pet"
+      # To avoid optimistic bias, thresholds are selected on a RID-level derivation split and
+      # all reported metrics/benchmark-swap results are evaluated on the held-out split.
+      split:
+        method: "rid_random"
+        derivation_fraction: 0.60
+        seed: 20250102
+      # Rule-out threshold targets sensitivity (PPA) for "not Negative"; rule-in targets specificity (NPA) for "not Positive".
+      # Multiple operating points are prespecified to support reflex-testing trade-off curves.
+      operating_points:
+        - name: "op_ppa0.95_npa0.95"
+          rule_out_target_ppa: 0.95
+          rule_in_target_npa: 0.95
+        - name: "op_ppa0.90_npa0.90"
+          rule_out_target_ppa: 0.90
+          rule_in_target_npa: 0.90
+      endpoint_directions:
+        c2n_plasma_abeta42_abeta40_abeta_ratio: "lower_is_more_positive"
+        c2n_plasma_ptau217_ratio_ptau217_ratio: "higher_is_more_positive"
+    binary_policies:
+      - "determinates_only"
+      - "indet_to_negative"
+      - "indet_to_positive"
+
+appendices:
+  aps2_pet_only:
+    enabled: true
+    description: "ADNI4 APS2 vs PET only (no CSF overlap in this raw drop)."
+    tables:
+      pet: "core/canonical/pet_amyloid_ucb_6mm.csv"
+      plasma: "core/canonical/plasma_c2n_precivityad2_score.csv"
+    windows_days:
+      pet_plasma: 90
+    plasma_filter:
+      ASSAYVERSION: "PrecivityAD2"
+    endpoint:
+      name: "APS2_C2N"
+      direction: "higher_is_more_positive"
+    manufacturer_locked_binary:
+      name: "APS2 manufacturer dichotomy"
+      operating_point: "aps2_manufacturer_48"
+      cutoff: 48
+      negative_if: "APS2_C2N < 48 (0–47)"
+      positive_if: "APS2_C2N >= 48 (48–100)"
+      source: "data/raw/Biospecimen_Results/ADNI_C2N_PRECIVITYAD2_PLASMA_METHODS_20251219.pdf"
+    tri_category:
+      method: "tail_targets"
+      benchmark_for_thresholds: "pet"
+      split:
+        method: "rid_random"
+        derivation_fraction: 0.60
+        seed: 20250102
+      operating_points:
+        - name: "op_ppa0.95_npa0.95"
+          rule_out_target_ppa: 0.95
+          rule_in_target_npa: 0.95
+        - name: "op_ppa0.90_npa0.90"
+          rule_out_target_ppa: 0.90
+          rule_in_target_npa: 0.90
+
+statistics:
+  agreement_metrics:
+    - "PPA"
+    - "NPA"
+  intervals:
+    ppa_npa: "Wilson95"
+    benchmark_swap: "paired_bootstrap"
+  bootstrap:
+    unit: "RID"
+    replicates: 10000
+    seed: 20250101
+
+workflow:
+  reflex_testing:
+    primary:
+      confirm_if:
+        - "Positive"
+        - "Indeterminate"
+    secondary:
+      confirm_if:
+        - "Positive"

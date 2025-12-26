@@ -1,0 +1,17 @@
+# Time windows used for dyads/triads (symmetric ±days)
+
+primary:
+  pet_plasma: 90
+  pet_csf: 180
+  plasma_csf: 180
+
+sensitivity:
+  tight:
+    pet_plasma: 60
+    pet_csf: 120
+    plasma_csf: 120
+  wide:
+    pet_plasma: 120
+    pet_csf: 240
+    plasma_csf: 240
+

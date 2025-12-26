@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it."
+title: "ADNI paired benchmark swap + gray-zone workflow (code-only)"
+authors:
+  - family-names: "Kumar"
+    given-names: "Satwant"
+    email: "Satwant.Dagar@gmail.com"
+license: "MIT"
+repository-code: "https://github.com/SatwantKumar/adni-paired-benchmark-swap"
+

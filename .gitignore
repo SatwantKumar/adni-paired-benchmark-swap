@@ -1,0 +1,29 @@
+.DS_Store
+*.pyc
+__pycache__/
+
+# Virtualenvs
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# ADNI data (DO NOT COMMIT)
+data/
+raw/
+
+# Derived artifacts (DO NOT COMMIT)
+core/
+audit/
+manifests/
+outputs/
+manuscript/
+
+# Rendered documents / figures
+*.pdf
+*.docx
+*.png
+*.svg
+

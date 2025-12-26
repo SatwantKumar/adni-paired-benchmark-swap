@@ -1,0 +1,91 @@
+# Analysis configuration (edit for your ADNI pull)
+
+project:
+  name: adni_benchmark_dependence
+  output_dir: outputs
+
+inputs:
+  # Recommended: start from ADNIMERGE for demographics/diagnosis/visit dates.
+  adnimerge_csv: data/raw/ADNIMERGE.csv
+
+  # Provide ADNI tables you will use for each modality.
+  # Replace these placeholders with your actual download filenames.
+  pet_csv: data/raw/TBD_AMYLOID_PET.csv
+  csf_csv: data/raw/TBD_CSF.csv
+  plasma_csv: data/raw/TBD_PLASMA.csv
+
+triad:
+  # Build one triad per RID (primary).
+  one_per_rid: true
+
+  # Pairwise max |Δdays| constraints (primary).
+  max_gap_days:
+    plasma_pet: 90
+    plasma_csf: 90
+    pet_csf: 180
+
+  # Sensitivity windows (optional).
+  sensitivity_max_gap_days:
+    - { plasma_pet: 60, plasma_csf: 60, pet_csf: 120 }
+    - { plasma_pet: 120, plasma_csf: 120, pet_csf: 240 }
+
+  # How to score candidate triads per RID.
+  scoring:
+    primary: minimize_max_pair_gap
+    tiebreakers:
+      - minimize_sum_pair_gaps
+      - earliest_median_date
+
+definitions:
+  pet:
+    # Choose one primary approach and specify the required columns.
+    # Options: centiloid | suvr
+    metric: TBD_centiloid_or_suvr
+    tracer_column: TBD_TRACER_COLUMN
+    date_column: TBD_PET_DATE_COLUMN
+    value_column: TBD_PET_VALUE_COLUMN
+    positive_threshold: TBD_NUMERIC
+    positive_direction: above_or_equal
+
+  csf:
+    platform: TBD_ELECSYS_OR_INNOTEST
+    date_column: TBD_CSF_DATE_COLUMN
+    value_column: TBD_CSF_VALUE_COLUMN
+    metric: TBD_abeta42_40_ratio_or_abeta42
+    positive_threshold: TBD_NUMERIC
+    # Some CSF amyloid metrics are "positive when below".
+    positive_direction: below_or_equal
+
+  plasma:
+    assay: TBD
+    date_column: TBD_PLASMA_DATE_COLUMN
+    value_column: TBD_PLASMA_VALUE_COLUMN
+
+    # Recommended: tri-category classification.
+    # If ADNI provides only a continuous biomarker, set cutpoints to define an indeterminate range.
+    cutpoints:
+      negative_if: { direction: below, threshold: TBD_NUMERIC }
+      positive_if: { direction: above, threshold: TBD_NUMERIC }
+      indeterminate_between: true
+
+    # Binary mapping policy for 2×2 agreement summaries.
+    # Options: determinates_only | indet_to_negative | indet_to_positive
+    binary_policy: determinates_only
+
+  stage:
+    # Source and mapping for CU/MCI/DEM at index (typically from ADNIMERGE).
+    source: adnimerge
+    diagnosis_column: TBD_DX_COLUMN
+    mapping:
+      CN: CU
+      EMCI: MCI
+      LMCI: MCI
+      MCI: MCI
+      AD: Dementia
+
+stats:
+  bootstrap:
+    enabled: true
+    replicates: 5000
+    seed: 20250101
+

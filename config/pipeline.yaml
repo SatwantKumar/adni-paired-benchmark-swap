@@ -1,0 +1,47 @@
+# Evidence-core pipeline config (edit if you rename/move raw files)
+
+raw_root: data/raw
+
+sources:
+  adnimerge: data/raw/ADNIMERGE_23Dec2025.csv
+  datadic: data/raw/Quick_Start/DATADIC_23Dec2025.csv
+  ptdemog: data/raw/ADNI_Tables_23Dec2025/All_Subjects_PTDEMOG_23Dec2025.csv
+  pet_ucb_amy_6mm: data/raw/ADNI_Tables_23Dec2025/All_Subjects_UCBERKELEY_AMY_6MM_23Dec2025.csv
+  csf_elecsys_upenn: data/raw/ADNI_Tables_23Dec2025/All_Subjects_UPENNBIOMK_ROCHE_ELECSYS_23Dec2025.csv
+  plasma_fnibc: data/raw/ADNI_Tables_23Dec2025/All_Subjects_FNIHBC_BLOOD_BIOMARKER_TRAJECTORIES_23Dec2025.csv
+  plasma_c2n_precivityad2: data/raw/Biospecimen_Results/C2N_PRECIVITYAD2_PLASMA_23Dec2025.csv
+  plasma_c2n_precivityad2_methods_pdf: data/raw/Biospecimen_Results/ADNI_C2N_PRECIVITYAD2_PLASMA_METHODS_20251219.pdf
+  plasma_janssen_ptau217: data/raw/ADNI_Tables_23Dec2025/All_Subjects_JANSSEN_PLASMA_P217_TAU_23Dec2025.csv
+
+outputs:
+  core_dir: core
+  audit_dir: audit
+  manifests_dir: manifests
+
+pairing:
+  # Windows are symmetric ±days.
+  windows_days:
+    pet_plasma: 90
+    pet_csf: 180
+    plasma_csf: 180
+
+  # Select which canonical plasma table is used for dyads/triads.
+  # Options: fnibc_wide, c2n_precivityad2
+  # NOTE: C2N APS2 (ADNI4-era) does not overlap in time with Elecsys CSF (ADNI1–3-era) in this raw drop,
+  # so triads are only possible with the multi-platform FNIH plasma table.
+  plasma_source: fnibc_wide
+
+  # Primary plasma selection for dyads/triads (Paper A default).
+  # Use these keys as exact (string) filters on the plasma wide table.
+  plasma_filter:
+    ASSAYVERSION: PrecivityAD2
+
+release:
+  # Optional: override the auto-generated release id.
+  release_id: adni_core_2025-12-23_precivityAD2_fnibc_triads_plus_aps2_v1
+
+regression:
+  # If `audit/qc/regression_snapshot.json` exists, `mode: check` fails the build if key metrics drift.
+  # Set `mode: update` only when intentionally bumping the evidence-core release.
+  mode: check
+  float_tol: 1e-6

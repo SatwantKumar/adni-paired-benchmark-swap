@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adni-analysis"
+version = "0.1.0"
+description = "Reproducible ADNI evidence-core pipeline for paired benchmark dependence analyses."
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "pyyaml>=6.0",
+  "matplotlib>=3.8",
+  "python-docx>=1.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
